@@ -27,9 +27,15 @@ namespace Assignment1
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+            var host = Configuration["DBHOST"] ?? "localhost";
+            var port = Configuration["DBPORT"] ?? "1444";
+            var user = Configuration["DBUSER"] ?? "sa";
+            var pwd = Configuration["DBPASSWORD"] ?? "SqlExpress!";
+            var db = Configuration["DBNAME"] ?? "bcit";
+
+            var conStr = $"Server=tcp:{host},{port};Database={db};UID={user};PWD={pwd};";
+
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(conStr));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -38,7 +44,7 @@ namespace Assignment1
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext context)
         {
             if (env.IsDevelopment())
             {
@@ -58,6 +64,9 @@ namespace Assignment1
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            SampleData.Initialize(app);
+            context.Database.Migrate();
 
             app.UseEndpoints(endpoints =>
             {

@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Assignment1;
 
 namespace Assignment1.Data
 {
@@ -12,5 +13,6 @@ namespace Assignment1.Data
             : base(options)
         {
         }
+        public DbSet<Assignment1.Student> Students { get; set; }
     }
 }
